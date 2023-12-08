@@ -36,7 +36,7 @@ public class Country {
     private String governmentForm;
     @Column(name = "head_of_state")
     private String headOfState;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "capital")
     private City city;
     @OneToMany(fetch = FetchType.EAGER)

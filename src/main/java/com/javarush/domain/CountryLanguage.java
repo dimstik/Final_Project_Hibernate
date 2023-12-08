@@ -13,7 +13,7 @@ public class CountryLanguage {
     @Column(name = "id")
     private Integer id;
     @ManyToOne
-    @JoinColumn(name = "county_id")
+    @JoinColumn(name = "country_id")
     private Country country;
     private String language;
     @Column(name = "is_official", columnDefinition = "BIT")
