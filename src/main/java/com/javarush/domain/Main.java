@@ -1,5 +1,6 @@
 package com.javarush.domain;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javarush.dao.CityDAO;
 import com.javarush.dao.CountryDAO;
@@ -8,6 +9,7 @@ import com.javarush.redis.Language;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisCommands;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -35,6 +37,7 @@ public class Main {
         List<City> allCities = main.fetchData(main);
         main.shutdown();
         List<CityCountry> preparedData = main.transformData(allCities);
+        main.pushToRedis(preparedData);
     }
 
     private List<CityCountry> transformData(List<City> allCities) {
@@ -127,6 +130,17 @@ public class Main {
             }
             currentSession.getTransaction().commit();
             return allCities;
+        }
+    }
+
+    private void pushToRedis(List<CityCountry> preparedData) {
+        try(StatefulRedisConnection<String, String> connect = redisClient.connect()) {
+            RedisCommands<String, String> sync = connect.sync();
+            for (CityCountry cityCountry : preparedData) {
+                sync.set(String.valueOf(cityCountry.getId()), mapper.writeValueAsString(cityCountry));
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 }
