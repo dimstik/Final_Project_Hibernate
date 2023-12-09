@@ -6,6 +6,8 @@ import com.javarush.dao.CountryDAO;
 import com.javarush.redis.CityCountry;
 import com.javarush.redis.Language;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulRedisConnection;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -77,7 +79,11 @@ public class Main {
     }
 
     private RedisClient prepareRedisClient() {
-        return null;
+        RedisClient redisClient = RedisClient.create(RedisURI.create("localhost", 6379));
+        try (StatefulRedisConnection<String, String> connect = redisClient.connect()) {
+            System.out.println("\nConnected to Redis\n");
+        }
+        return redisClient;
     }
 
     private SessionFactory prepareRelationalDb() {
