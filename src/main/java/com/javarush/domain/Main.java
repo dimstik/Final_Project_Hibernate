@@ -49,7 +49,7 @@ public class Main {
                     res.setPopulation(city.getPopulation());
                     res.setDistrict(city.getDistrict());
 
-                    Country country = new Country();
+                    Country country = city.getCountry();
                     res.setAlternativeCountryCode(country.getAlternativeCode());
                     res.setContinent(country.getContinent());
                     res.setCountryCode(country.getCode());
