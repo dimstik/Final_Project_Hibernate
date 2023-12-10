@@ -35,9 +35,9 @@ public class Main {
     public static void main(String[] args) {
         Main main = new Main();
         List<City> allCities = main.fetchData(main);
-        main.shutdown();
         List<CityCountry> preparedData = main.transformData(allCities);
         main.pushToRedis(preparedData);
+        main.shutdown();
     }
 
     private List<CityCountry> transformData(List<City> allCities) {
