@@ -9,7 +9,7 @@ import com.javarush.redis.Language;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.api.sync.RedisStringCommands;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -83,7 +83,7 @@ public class Main {
 
     private RedisClient prepareRedisClient() {
         RedisClient redisClient = RedisClient.create(RedisURI.create("localhost", 6379));
-        try (StatefulRedisConnection<String, String> connect = redisClient.connect()) {
+        try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
             System.out.println("\nConnected to Redis\n");
         }
         return redisClient;
@@ -133,14 +133,16 @@ public class Main {
         }
     }
 
-    private void pushToRedis(List<CityCountry> preparedData) {
-        try(StatefulRedisConnection<String, String> connect = redisClient.connect()) {
-            RedisCommands<String, String> sync = connect.sync();
-            for (CityCountry cityCountry : preparedData) {
-                sync.set(String.valueOf(cityCountry.getId()), mapper.writeValueAsString(cityCountry));
+    private void pushToRedis(List<CityCountry> data) {
+        try (StatefulRedisConnection<String, String> connection = redisClient.connect()) {
+            RedisStringCommands<String, String> sync = connection.sync();
+            for (CityCountry cityCountry : data) {
+                try {
+                    sync.set(String.valueOf(cityCountry.getId()), mapper.writeValueAsString(cityCountry));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
         }
     }
 }
