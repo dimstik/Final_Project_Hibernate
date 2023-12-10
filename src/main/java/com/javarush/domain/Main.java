@@ -138,6 +138,19 @@ public class Main {
             }
         }
     }
+    private void testRedisData(List<Integer> ids) {
+        try(StatefulRedisConnection<String, String> connect = redisClient.connect()) {
+            RedisStringCommands<String, String> sync = connect.sync();
+            for(Integer id : ids) {
+                String value = sync.get(String.valueOf(id));
+                try {
+                    mapper.readValue(value, CityCountry.class);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
     private void shutdown() {
         if (nonNull(sessionFactory)) {
             sessionFactory.close();
