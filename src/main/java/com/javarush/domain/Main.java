@@ -117,6 +117,16 @@ public class Main {
             return allCities;
         }
     }
+    private void testMysqlData(List<Integer> ids) {
+        try(Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            for (Integer id : ids) {
+                City city = cityDAO.getById(id);
+                Set<CountryLanguage> languages = city.getCountry().getLanguages();
+            }
+            session.getTransaction().commit();
+        }
+    }
 
     private RedisClient prepareRedisClient() {
         RedisClient redisClient = RedisClient.create(RedisURI.create("localhost", 6379));
